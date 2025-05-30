@@ -3,7 +3,8 @@
 import { useDeSoApi } from '@/api/useDeSoApi';
 import { useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useState, useRef } from 'react';
+import Image from 'next/image'; // Import next/image
+import { useState, useRef, memo, useCallback } from 'react'; // Import memo and useCallback
 
 import { MarkdownText } from '@/components/MarkdownText';
 import { Avatar } from '@/components/Avatar';
@@ -15,7 +16,8 @@ import styles from './Post.module.css';
 
 const COMMENT_LIMIT = 10;
 
-export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
+// Original component function
+const PostComponent = ({ post, username, userProfile, isQuote, isComment }) => {
   if (!post) return null;
 
   const {
@@ -90,9 +92,9 @@ export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
       return lastPage.hasMore ? totalLoaded : undefined;
     },    
     enabled: showReplies,
-    staleTime: Infinity,
+    staleTime: 5 * 60 * 1000, // 5 minutes
     cacheTime: Infinity,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
     refetchOnMount: false,
     refetchOnReconnect: false,
     retry: false,
@@ -102,6 +104,40 @@ export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
 
 
   const newCommentsVisible = queryClient.getQueryData(uiKeys.newCommentsVisible(PostHashHex)) ?? true;
+
+  const handleReplyCallback = useCallback((newReply) => {
+    if (!showReplies) {
+      shouldFetchFirstPage.current = true; // mark that we need to fetch backend later
+    }
+
+    const commentWithFlag = { ...newReply, isLocal: true };
+
+    queryClient.setQueryData(queryKeys.postComments(PostHashHex), (oldData) => {
+      if (!oldData) {
+        return {
+          pages: [{ comments: [commentWithFlag] }],
+          pageParams: [null],
+        };
+      }
+
+      const exists = oldData.pages.some(page =>
+        page.comments.some(c => c.PostHashHex === commentWithFlag.PostHashHex)
+      );
+      if (exists) return oldData;
+
+      const firstPage = oldData.pages[0];
+      return {
+        ...oldData,
+        pages: [
+          {
+            ...firstPage,
+            comments: [commentWithFlag, ...firstPage.comments],
+          },
+          ...oldData.pages.slice(1),
+        ],
+      };
+    });
+  }, [queryClient, PostHashHex, showReplies]);
 
   const injectedComments = newCommentsVisible
     ? data?.pages?.[0]?.comments?.filter(c => c.isLocal) || []
@@ -292,12 +328,15 @@ export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
             : 
             <>
               {ImageURLs.map((url, index) => (
-                <img
+                <Image
                   key={index}
                   src={url}
                   alt={`Post image ${index + 1}`}
                   className={styles.postImage}
-                  loading="lazy"
+                  width={800} // Provide a reasonable width for optimization
+                  height={800} // Provide a reasonable height for optimization
+                  // loading="lazy" is default
+                  // object-fit: contain is in styles.postImage
                 />
               ))}
             </>
@@ -313,40 +352,7 @@ export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
 
         <PostStats
           post={post}
-          onReply={(newReply) => {
-            if (!showReplies) {
-              shouldFetchFirstPage.current = true; // mark that we need to fetch backend later
-            }
-
-            const commentWithFlag = { ...newReply, isLocal: true };
-
-            queryClient.setQueryData(queryKeys.postComments(PostHashHex), (oldData) => {
-              if (!oldData) {
-                return {
-                  pages: [{ comments: [commentWithFlag] }],
-                  pageParams: [null],
-                };
-              }
-
-              const exists = oldData.pages.some(page =>
-                page.comments.some(c => c.PostHashHex === commentWithFlag.PostHashHex)
-              );
-              if (exists) return oldData;
-
-              const firstPage = oldData.pages[0];
-              return {
-                ...oldData,
-                pages: [
-                  {
-                    ...firstPage,
-                    comments: [commentWithFlag, ...firstPage.comments],
-                  },
-                  ...oldData.pages.slice(1),
-                ],
-              };
-            });
-          }}
-
+          onReply={handleReplyCallback}
         />
 
         {CommentCount > 0 && (
@@ -391,3 +397,6 @@ export const Post = ({ post, username, userProfile, isQuote, isComment }) => {
     </div>
   );
 };
+
+// Memoized component
+export const Post = memo(PostComponent);

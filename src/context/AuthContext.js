@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useRef } from "react";
-import { identity, configure } from "deso-protocol";
+import { identity, configure } from "deso-protocol"; // Restored import, usage still commented
 
 const AuthContext = createContext(null);
 

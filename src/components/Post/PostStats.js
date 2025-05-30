@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo, useCallback } from "react"; // Import memo and useCallback
 import { useDeSoApi } from "@/api/useDeSoApi";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/useToast";
@@ -10,7 +10,7 @@ import { Button } from "@/components/Button";
 
 // PostStats component handles the stats (💬 🔁 ❤️ 💎) display
 // and manages the inline reply UI and submission logic.
-export const PostStats = ({ post, onReply }) => {
+const PostStatsComponent = ({ post, onReply }) => {
   const {
     PostHashHex,
     CommentCount,
@@ -30,6 +30,10 @@ export const PostStats = ({ post, onReply }) => {
   const { submitPost } = useDeSoApi();
   const { signAndSubmitTransaction, userPublicKey } = useAuth();
   const { showErrorToast } = useToast();
+
+  const closeReplyBox = useCallback(() => {
+    setShowReplyBox(false);
+  }, []); // No dependencies, setShowReplyBox is stable
 
   const handleReply = async () => {
     setLoading(true);
@@ -92,14 +96,14 @@ export const PostStats = ({ post, onReply }) => {
           />
           <div className={styles.replyActions}>
             <Button
-              onClick={() => setShowReplyBox(false)}
+              onClick={closeReplyBox}
               disabled={loading}
               variant="secondary"
               size="small"
             >
                 Cancel</Button>
             <Button 
-                onClick={handleReply}
+                onClick={handleReply} // handleReply is already a stable function within this component's render scope
                 isLoading={loading}
                 disabled={!replyText}
                 variant="primary"
@@ -113,3 +117,5 @@ export const PostStats = ({ post, onReply }) => {
     </>
   );
 };
+
+export const PostStats = memo(PostStatsComponent);

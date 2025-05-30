@@ -1,10 +1,11 @@
 "use client";
 
+import { memo } from 'react'; // Import memo
 import PropTypes from "prop-types";
 import classNames from "classnames";
 import styles from "./Input.module.css";
 
-export const Input = ({
+const InputComponent = ({
   type = "text",
   value,
   onChange,
@@ -66,3 +67,5 @@ Input.defaultProps = {
   disabled: false,
   name: undefined,
 };
+
+export const Input = memo(InputComponent);

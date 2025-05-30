@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Avatar } from '@/components/Avatar';
 import { PublicKeyDisplay } from '@/components/PublicKeyDisplay';
 
@@ -19,12 +20,13 @@ export const Profile = ({ profile, rawParam, isLoading, isError, error }) => {
             {
                 profile?.ExtraData?.FeaturedImageURL &&
                 <div className={styles.coverImageContainer}>
-                    <div 
-                        className={styles.coverImageLayer}
-                        style={{ backgroundImage: `url(${profile?.ExtraData?.FeaturedImageURL})`}}
-                    >
-                    </div>
-                    <img alt="" draggable="true" src={profile?.ExtraData?.FeaturedImageURL} className={styles.coverImage}></img>
+                    <Image 
+                        alt="Cover image"
+                        src={profile.ExtraData.FeaturedImageURL} 
+                        fill
+                        className={styles.coverImage}
+                        priority // Consider prioritizing if it's LCP
+                    />
                 </div>
             }
 

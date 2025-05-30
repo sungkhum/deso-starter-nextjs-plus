@@ -2,15 +2,17 @@
 
 import styles from "./Navbar.module.css";
 import Link from "next/link";
+// import dynamic from 'next/dynamic'; // Will re-add if needed for UserMenu
 
-import { SearchProfiles } from "@/components/SearchProfiles";
-import { ThemeSelector } from "@/components/ThemeSelector";
+import { SearchProfiles } from "@/components/SearchProfiles"; 
+import { ThemeSelector } from "@/components/ThemeSelector"; 
 
 import { 
   Home as HomeIcon
 } from '@/assets/icons';
 
-import { UserMenu } from "@/components/UserMenu";
+// import dynamic from 'next/dynamic'; // Reverted
+import { UserMenu } from "@/components/UserMenu"; // Reverted to static
 
 export const Navbar = () => {
 

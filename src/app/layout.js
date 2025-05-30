@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <MainLayout>{children}</MainLayout>
         </Providers>
-        <ToastUI />
+        <ToastUI /> {/* Restored */}
       </body>
     </html>
   );

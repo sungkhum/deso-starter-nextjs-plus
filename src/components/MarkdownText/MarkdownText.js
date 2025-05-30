@@ -1,9 +1,10 @@
+import { memo } from 'react'; // Import memo
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-export const formatMentionsAndCoins = (text) => {
+export const formatMentionsAndCoins = (text) => { // Keep this export if used elsewhere
   if (!text) return '';
 
   // Step 0: Normalize escaped underscore
@@ -27,11 +28,13 @@ export const normalizeLineBreaks = (text) => {
     .replace(/([^\n])\n(?!\n)/g, '$1  \n');  
 };
 
-export const MarkdownText = ({ text, onInternalLinkClick = null }) => {
+// const normalizeLineBreaks definition removed from here
+
+const MarkdownTextComponent = ({ text, onInternalLinkClick = null }) => {
   const router = useRouter();
   
-  const normalized = normalizeLineBreaks(text);
-  const processed = formatMentionsAndCoins(normalized);
+  const normalized = normalizeLineBreaks(text); // Uses the single exported version
+  const processed = formatMentionsAndCoins(normalized); // Uses the single exported version
 
   return (
     <ReactMarkdown
@@ -108,3 +111,4 @@ export const MarkdownText = ({ text, onInternalLinkClick = null }) => {
 // These warnings are safe to ignore and do not impact functionality or security.
 // We're preserving user-submitted Markdown as-is, without stripping or transforming content.
 
+export const MarkdownText = memo(MarkdownTextComponent);

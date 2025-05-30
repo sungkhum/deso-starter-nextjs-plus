@@ -1,10 +1,12 @@
 "use client";
 
+import Image from 'next/image'; // Import next/image
+import { memo } from 'react'; // Import memo
 import { avatarUrl } from "@/utils/profileUtils";
 import { DefaultAvatar } from "@/assets/icons";
 import styles from "./Avatar.module.css";
 
-export const Avatar = ({ profile, size = "medium", className = "" }) => {
+const AvatarComponent = ({ profile, size = "medium", className = "" }) => {
   const avatar = avatarUrl(profile);
 
   const sizePx =
@@ -22,12 +24,12 @@ export const Avatar = ({ profile, size = "medium", className = "" }) => {
       style={{ width: sizePx, height: sizePx }}
     >
       {avatar ? (
-        <img
+        <Image
           src={avatar}
           alt="User avatar"
           className={styles.avatarImage}
-          width={sizePx}
-          height={sizePx}
+          width={sizePx} // Prop for next/image
+          height={sizePx} // Prop for next/image
         />
       ) : (
         <div className={styles.fallbackAvatar}>
@@ -37,3 +39,5 @@ export const Avatar = ({ profile, size = "medium", className = "" }) => {
     </div>
   );
 };
+
+export const Avatar = memo(AvatarComponent);

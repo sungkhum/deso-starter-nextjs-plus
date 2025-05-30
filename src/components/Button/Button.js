@@ -1,10 +1,11 @@
 "use client";
 
+import { memo } from 'react'; // Import memo
 import PropTypes from 'prop-types';
 import styles from './Button.module.css';
 import classNames from 'classnames';
 
-export const Button = ({
+const ButtonComponent = ({
   children,
   type = 'button',
   variant = 'primary',
@@ -60,3 +61,5 @@ Button.defaultProps = {
   icon: null,
   trailingIcon: null,
 };
+
+export const Button = memo(ButtonComponent);
