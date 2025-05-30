@@ -1,62 +1,57 @@
 "use client";
 
-import PropTypes from 'prop-types';
-import styles from './Button.module.css';
-import classNames from 'classnames';
+import * as React from 'react';
+import { Loader2 } from 'lucide-react'; // Assuming lucide-react is installed
+import { Button as ShadcnButton, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export const Button = ({
   children,
-  type = 'button',
-  variant = 'primary',
-  size = 'medium',
+  variant = 'primary', // 'primary', 'secondary', 'danger'
+  size = 'medium',    // 'small', 'medium', 'large'
   disabled = false,
   isLoading = false,
   icon = null,
   trailingIcon = null,
+  className, // Allow additional classes to be passed
   ...props
 }) => {
+  // Map old variants to ShadCN variants
+  const shadcnVariant = {
+    primary: 'default',
+    secondary: 'outline',
+    danger: 'destructive',
+  }[variant] || 'default';
+
+  // Map old sizes to ShadCN sizes
+  const shadcnSize = {
+    small: 'sm',
+    medium: 'default',
+    large: 'lg',
+  }[size] || 'default';
+
   return (
-    <button
-      type={type}
-      className={classNames(
-        styles.button,
-        styles[variant],
-        styles[size],
-        { [styles.loading]: isLoading }
-      )}
+    <ShadcnButton
+      variant={shadcnVariant}
+      size={shadcnSize}
       disabled={disabled || isLoading}
+      className={cn(className)} // Apply any additional classes
       {...props}
     >
       {isLoading ? (
-        <span className={styles.spinner} aria-hidden="true" />
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
-        icon && <span className={styles.icon}>{icon}</span>
+        icon && <span className="mr-2">{icon}</span>
       )}
-      <span className={styles.label}>{children}</span>
+      {children}
       {!isLoading && trailingIcon && (
-        <span className={styles.icon}>{trailingIcon}</span>
+        <span className="ml-2">{trailingIcon}</span>
       )}
-    </button>
+    </ShadcnButton>
   );
 };
 
-Button.propTypes = {
-  children: PropTypes.node.isRequired,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'danger']),
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
-  disabled: PropTypes.bool,
-  isLoading: PropTypes.bool,
-  icon: PropTypes.node,
-  trailingIcon: PropTypes.node,
-};
-
-Button.defaultProps = {
-  type: 'button',
-  variant: 'primary',
-  size: 'medium',
-  disabled: false,
-  isLoading: false,
-  icon: null,
-  trailingIcon: null,
-};
+// Note: PropTypes are removed as per typical ShadCN integration,
+// relying on TypeScript or JSDoc for type checking if needed.
+// If PropTypes are still desired, they would need to be updated
+// to reflect the new props and variants.
